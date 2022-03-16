@@ -1,13 +1,13 @@
-const fetch = require('node-fetch');
-const Discord = require('discord.js');
-const { openseaEventsUrl } = require('../config.json');
+const fetch = require("node-fetch");
+const Discord = require("discord.js");
+const { openseaEventsUrl } = require("../config.json");
 
 var listingCache = [];
 var lastTimestamp = null;
 
 module.exports = {
-  name: 'listing',
-  description: 'listing bot',
+  name: "listing",
+  description: "listing bot",
   interval: 30000,
   enabled: process.env.DISCORD_LISTING_CHANNEL_ID != null,
   async execute(client) {
@@ -25,13 +25,20 @@ module.exports = {
     let newEvents = true;
     let settings = {
       method: "GET",
-      headers: process.env.OPEN_SEA_API_KEY == null ? {} : {
-        "X-API-KEY": process.env.OPEN_SEA_API_KEY
-      }
+      headers:
+        process.env.OPEN_SEA_API_KEY == null
+          ? {}
+          : {
+              "X-API-KEY": process.env.OPEN_SEA_API_KEY,
+            },
     };
 
     do {
-      let url = `${openseaEventsUrl}?collection_slug=${process.env.OPEN_SEA_COLLECTION_NAME}&event_type=created&only_opensea=false&occurred_before=${newTimestamp}${next == null ? '' : `&cursor=${next}`}`;
+      let url = `${openseaEventsUrl}?collection_slug=${
+        process.env.OPEN_SEA_COLLECTION_NAME
+      }&event_type=created&only_opensea=false&occurred_before=${newTimestamp}${
+        next == null ? "" : `&cursor=${next}`
+      }`;
       try {
         var res = await fetch(url, settings);
         if (res.status != 200) {
@@ -43,7 +50,15 @@ module.exports = {
         next = data.next;
 
         data.asset_events.forEach(function (event) {
-          if (event.asset) {
+          if (
+            event.asset &&
+            event.asset.description &&
+            (event.asset.description
+              .toLowerCase()
+              .includes("#longlifenation") ||
+              event.asset.description.toLowerCase().includes("#pow") ||
+              event.asset.description.toLowerCase().includes("#lnn"))
+          ) {
             if (listingCache.includes(event.id)) {
               newEvents = false;
               return;
@@ -52,33 +67,42 @@ module.exports = {
               if (listingCache.length > 200) listingCache.shift();
             }
 
-            if ((+new Date(event.created_date) / 1000) < lastTimestamp) {
+            if (+new Date(event.created_date) / 1000 < lastTimestamp) {
               newEvents = false;
               return;
             }
 
             const embedMsg = new Discord.MessageEmbed()
-              .setColor('#0099ff')
+              .setColor("#0099ff")
               .setTitle(event.asset.name)
               .setURL(event.asset.permalink)
-              .setDescription(`has just been listed for ${event.starting_price / (1e18)}\u039E`)
+              .setDescription(
+                `has just been listed for ${event.starting_price / 1e18}\u039E`
+              )
               .setThumbnail(event.asset.image_url)
-              .addField("By", `[${event.seller.user?.username || event.seller.address.slice(0, 8)}](https://etherscan.io/address/${event.seller.address})`, true)
+              .addField(
+                "By",
+                `[${
+                  event.seller.user?.username ||
+                  event.seller.address.slice(0, 8)
+                }](https://etherscan.io/address/${event.seller.address})`,
+                true
+              );
 
-            client.channels.fetch(process.env.DISCORD_LISTING_CHANNEL_ID)
-              .then(channel => {
+            client.channels
+              .fetch(process.env.DISCORD_LISTING_CHANNEL_ID)
+              .then((channel) => {
                 channel.send(embedMsg);
               })
               .catch(console.error);
           }
         });
-      }
-      catch (error) {
+      } catch (error) {
         console.error(error);
         return;
       }
-    } while (next != null && newEvents)
+    } while (next != null && newEvents);
 
     lastTimestamp = newTimestamp;
-  }
+  },
 };

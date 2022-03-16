@@ -1,14 +1,9 @@
 {
-  "name": "NFT Discord Bot",
+  "name": "NFT Discord Bot for Proof of Workout",
   "description": "A Discord bot for getting NFT data from OpenSea",
-  "logo": "https://i.imgur.com/g9c44tp.png",
-  "keywords": [
-    "erc721",
-    "nft",
-    "discord",
-    "opensea"
-  ],
-  "repository": "https://github.com/lucid-eleven/nft-discord-bot",
+  "logo": "https://i.imgur.com/XKLWO9R.png",
+  "keywords": ["erc721", "nft", "discord", "opensea"],
+  "repository": "https://github.com/jamalavedra/proof_of_workout_bot",
   "env": {
     "CONTRACT_ADDRESS": {
       "description": "Ethereum address for the NFT Smart Contract",
