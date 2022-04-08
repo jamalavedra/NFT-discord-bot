@@ -1,6 +1,5 @@
 const fetch = require("node-fetch");
 const Discord = require("discord.js");
-const { openseaEventsUrl } = require("../config.json");
 
 var listingCache = [];
 var lastTimestamp = null;
@@ -25,20 +24,22 @@ module.exports = {
     let newEvents = true;
     let settings = {
       method: "GET",
+      qs: {
+        chain: "polygon",
+        page_number: "2",
+        include: "metadata",
+        refresh_metadata: "true",
+      },
       headers:
-        process.env.OPEN_SEA_API_KEY == null
+        process.env.NFTPORT_API_KEY == null
           ? {}
           : {
-              "X-API-KEY": process.env.OPEN_SEA_API_KEY,
+              "X-API-KEY": process.env.NFTPORT_API_KEY,
             },
     };
 
     do {
-      let url = `${openseaEventsUrl}?collection_slug=${
-        process.env.OPEN_SEA_COLLECTION_NAME
-      }&event_type=created&only_opensea=false&occurred_before=${newTimestamp}${
-        next == null ? "" : `&cursor=${next}`
-      }`;
+      let url = `https://api.nftport.xyz/v0/nfts/${process.env.CONTRACT_ADDRESS}`;
       try {
         var res = await fetch(url, settings);
         if (res.status != 200) {
@@ -49,45 +50,36 @@ module.exports = {
 
         next = data.next;
 
-        data.asset_events.forEach(function (event) {
+        data.nfts.forEach(function (event) {
           if (
-            event.asset &&
-            event.asset.description &&
-            (event.asset.description
+            event.metadata &&
+            event.metadata.description &&
+            (event.metadata.description
               .toLowerCase()
               .includes("#longlifenation") ||
-              event.asset.description.toLowerCase().includes("#pow") ||
-              event.asset.description.toLowerCase().includes("#lnn"))
+              event.metadata.description.toLowerCase().includes("#pow") ||
+              event.metadata.description.toLowerCase().includes("#lnn"))
           ) {
-            if (listingCache.includes(event.id)) {
+            if (listingCache.includes(event.token_id)) {
               newEvents = false;
               return;
             } else {
-              listingCache.push(event.id);
+              listingCache.push(event.token_id);
               if (listingCache.length > 200) listingCache.shift();
             }
 
-            if (+new Date(event.created_date) / 1000 < lastTimestamp) {
+            if (+new Date(event.updated_date) / 1000 < lastTimestamp) {
               newEvents = false;
               return;
             }
 
             const embedMsg = new Discord.MessageEmbed()
               .setColor("#0099ff")
-              .setTitle(event.asset.name)
-              .setURL(event.asset.permalink)
-              .setDescription(
-                `has just been listed for ${event.starting_price / 1e18}\u039E`
-              )
-              .setThumbnail(event.asset.image_url)
-              .addField(
-                "By",
-                `[${
-                  event.seller.user?.username ||
-                  event.seller.address.slice(0, 8)
-                }](https://etherscan.io/address/${event.seller.address})`,
-                true
-              );
+              .setTitle(event.metadata.name)
+              .setURL("https://ipfs.io" + event.metadata.image)
+              .setDescription(`new POW`)
+              .setThumbnail("https://ipfs.io" + event.asset.image)
+              .addField("By", `[0x644..582](https://jamalavedra.me/)`, true);
 
             client.channels
               .fetch(process.env.DISCORD_LISTING_CHANNEL_ID)
