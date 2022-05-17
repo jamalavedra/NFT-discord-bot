@@ -66,9 +66,8 @@ module.exports = {
               event.asset.description &&
               (event.asset.description
                 .toLowerCase()
-                .includes("#longlifenation") ||
-                event.asset.description.toLowerCase().includes("#pow") ||
-                event.asset.description.toLowerCase().includes("#lnn"))
+                .includes("@longlifenation") ||
+                event.asset.description.toLowerCase().includes("@lnn"))
             ) {
               const embedMsg = new Discord.MessageEmbed()
                 .setColor("#0099ff")
