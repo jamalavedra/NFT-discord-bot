@@ -4,13 +4,16 @@
   "description": "A Discord bot for getting NFT data from OpenSea",
   "main": "bot.js",
   "scripts": {
-    "start": "node bot.js"
+    "dev": "node bot.js",
+    "stop": "forever stopall && pkill node",
+    "start": "export NODE_ENV=production && forever start --minUptime 2000 --spinSleepTime 5 bot.js"
   },
   "author": "jamalavedra",
   "license": "MIT",
   "dependencies": {
     "discord.js": "^12.5.3",
     "dotenv": "^10.0.0",
+    "forever": "^4.0.3",
     "express": "^4.17.1",
     "jsdom": "^16.6.0",
     "node-cache": "^5.1.2",
