@@ -14,7 +14,8 @@ module.exports = {
     if (lastTimestamp == null) {
       lastTimestamp = Math.floor(Date.now() / 1000) - 7200;
     } else {
-      lastTimestamp -= 7230;
+      lastTimestamp -= 30;
+      // 7230
     }
     let newTimestamp = Math.floor(Date.now() / 1000);
     // we're retrieving events from -90 to -30 seconds ago each time, and each query overlaps the previous query by 30 seconds
