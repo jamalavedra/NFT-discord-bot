@@ -67,7 +67,7 @@ module.exports = {
               (event.asset.description
                 .toLowerCase()
                 .includes("@longlifenation") ||
-                event.asset.description.toLowerCase().includes("@lnn"))
+                event.asset.description.toLowerCase().includes("@lln"))
             ) {
               const embedMsg = new Discord.MessageEmbed()
                 .setColor("#0099ff")
