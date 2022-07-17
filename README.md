@@ -41,10 +41,3 @@ followed by
 
 `npm start`
 
-You can also deploy directly to Heroku in just a few minutes.
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-
-If you use the free dynos in Heroku, they go to sleep every 30 minutes unless there's a request on the endpoint, you can set up a free cron job online to poll your app every 20 minutes or so to keep it alive. https://cron-job.org/
-
-# proof_of_workout_bot
